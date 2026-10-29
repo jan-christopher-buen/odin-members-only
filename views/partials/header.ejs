@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>
+<%= title %> · Members Only</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+<a class="brand" href="/">
+<span class="brand-icon" aria-hidden="true">m.</span> MEMBERS ONLY</a>
+<nav aria-label="Main navigation">
+<a href="/">The board</a>
+<% if(user) { %>
+<a href="/messages/new">Write a message</a>
+<% if(!user.is_member) { %>
+<a href="/membership">Join the club</a>
+<% } %>
+<% if(!user.is_admin) { %>
+<a href="/admin">Admin access</a>
+<% } %>
+<form action="/logout" method="post">
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+<button class="nav-button">Log out</button>
+</form>
+<% } else { %>
+<a href="/login">Log in</a>
+<a class="button small" href="/signup">Create account <span aria-hidden="true">↗</span>
+</a>
+<% } %>
+</nav>
+</header>
+<main id="main" class="container">
+<div class="eyebrow">
+<span class="dot">
+</span> THE CLUBHOUSE <span class="status">
+<%= user ? (user.is_admin ? 'Admin' : user.is_member ? 'Member' : 'Nonmember') : 'Visitor' %>
+<% if(user) { %> · <%= user.username %>
+<% } %>
+</span>
+</div>

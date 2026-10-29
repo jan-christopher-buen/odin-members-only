@@ -1,0 +1,87 @@
+<%- include('partials/header') %>
+<section class="form-layout">
+<div class="form-intro">
+<p class="kicker">A SEAT AT THE TABLE</p>
+<h1>
+<%= title %>
+<span class="accent">.</span>
+</h1>
+<p class="intro">
+<%= ({signup:'Your words belong here. Start with an account; membership comes separately.',login:'Come on in. There’s always room for another story.',membership:'Have the invitation passcode? Unlock the names and dates behind the stories.',admin:'For the people who look after this space. Admin access includes membership.',message:'A passing thought or a story worth keeping. Make it yours.'})[kind] %>
+</p>
+<a href="/">← Back to the board</a>
+</div>
+<div class="form-card">
+<% if(notice) { %>
+<p class="notice" role="status">
+<%= notice %>
+</p>
+<% } %>
+<% if(Object.keys(errors).length) { %>
+<div class="error-summary" role="alert">
+<h2>Please check your details</h2>
+<% if(errors.form) { %>
+<p>
+<%= errors.form %>
+</p>
+<% } %>
+<ul>
+<% Object.entries(errors).filter(([key])=>key!=='form').forEach(([key,value])=> { %>
+<li>
+<a href="#<%= key %>">
+<%= value %>
+</a>
+</li>
+<% }); %>
+</ul>
+</div>
+<% } %>
+<form action="<%= kind==='message'?'/messages':'/'+kind %>" method="post">
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+<% const fields=kind==='signup'?['firstName','lastName','username','password','confirmPassword']:kind==='login'?['username','password']:kind==='message'?['title','body']:['passcode']; const labels={firstName:'First name',lastName:'Last name',username:'Username',password:'Password',confirmPassword:'Confirm password',title:'Title',body:'Message',passcode:'Passcode'}; fields.forEach(name=> { const secret=['password','confirmPassword','passcode'].includes(name); %>
+<div class="field">
+<label for="<%= name %>">
+<%= labels[name] %>
+</label>
+<% if(name==='body') { %>
+<textarea id="body" name="body" rows="7" required maxlength="5000" <% if(errors[name]) { %>aria-invalid="true" aria-describedby="body-error"<% } %>>
+<%= values.body || '' %>
+</textarea>
+<% } else { %>
+<input id="<%= name %>" name="<%= name %>" type="<%= secret?'password':'text' %>" value="<%= secret?'':values[name] || '' %>" required <% if(name==='username') { %>pattern="[A-Za-z0-9_-]{3,30}" minlength="3" maxlength="30" autocomplete="username" aria-describedby="username-help<%= errors[name]?' username-error':'' %>"<% } else { %>
+<% if(name==='password') { %>
+<%= kind==='signup'?'minlength=8':'' %> autocomplete="<%= kind==='signup'?'new-password':'current-password' %>" aria-describedby="password-help<%= errors[name]?' password-error':'' %>"<% } else { %>autocomplete="<%= name==='firstName'?'given-name':name==='lastName'?'family-name':name==='confirmPassword'?'new-password':'off' %>" <% if(errors[name]) { %>aria-describedby="<%= name %>-error"<% } %>
+<% } %>
+<% } %>
+<% if(['firstName','lastName'].includes(name)) { %>maxlength="80"<% } %>
+<% if(name==='title') { %>maxlength="120"<% } %>
+<% if(errors[name]) { %>aria-invalid="true"<% } %>>
+<% } %>
+<% if(name==='username') { %>
+<p class="hint" id="username-help">3–30 letters (A–Z), digits, underscores or hyphens. Case insensitive.</p>
+<% } %>
+<% if(name==='password') { %>
+<p class="hint" id="password-help">At least 8 characters; at most 72 UTF-8 bytes.</p>
+<% } %>
+<% if(errors[name]) { %>
+<p class="field-error" id="<%= name %>-error">
+<%= errors[name] %>
+</p>
+<% } %>
+</div>
+<% }); %>
+<button class="button full">
+<%= ({signup:'Create account',login:'Log in',membership:'Join the club',admin:'Unlock admin access',message:'Publish message'})[kind] %> <span aria-hidden="true">↗</span>
+</button>
+</form>
+<% if(kind==='signup') { %>
+<p class="form-foot">Already have an account? <a href="/login">Log in</a>
+</p>
+<% } %>
+<% if(kind==='login') { %>
+<p class="form-foot">New around here? <a href="/signup">Create an account</a>
+</p>
+<% } %>
+</div>
+</section>
+<%- include('partials/footer') %>

@@ -1,0 +1,19 @@
+<%- include('partials/header') %>
+<section class="narrow">
+<p class="kicker">ADMINISTRATION</p>
+<h1>Delete this message?</h1>
+<p>This permanently removes the message from the board.</p>
+<article class="message">
+<h2>
+<%= message.title %>
+</h2>
+<p class="message-body">
+<%= message.body %>
+</p>
+</article>
+<form method="post" action="/messages/<%= message.id %>/delete">
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+<button class="button danger">Delete permanently</button> <a href="/">Keep message</a>
+</form>
+</section>
+<%- include('partials/footer') %>

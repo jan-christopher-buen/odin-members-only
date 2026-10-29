@@ -1,0 +1,16 @@
+<%- include('partials/header') %>
+<section class="error-page">
+<p class="kicker">THE CLUBHOUSE</p>
+<h1>
+<%= title %>
+<span class="accent">.</span>
+</h1>
+<p class="intro">
+<%= message %>
+</p>
+<a class="button" href="/">Back to the board →</a>
+<% if(!user) { %>
+<a href="/login">Log in</a>
+<% } %>
+</section>
+<%- include('partials/footer') %>

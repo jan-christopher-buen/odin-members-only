@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+<section class="hero">
+<div>
+<p class="kicker">OPEN STORIES. PRIVATE COMPANY.</p>
+<h1>A place to leave<br>something <em>unsaid.</em>
+</h1>
+<p class="intro">Thoughts, stories, and the occasional confession.<br>The words are for everyone. The names stay in the club.</p>
+<a class="button" href="<%= user ? '/messages/new' : '/signup' %>">
+<%= user ? 'Write a message' : 'Find your place' %> <span aria-hidden="true">↗</span>
+</a>
+</div>
+<aside class="club-note">
+<span class="note-number">01 / THE HOUSE RULE</span>
+<div class="note-symbol" aria-hidden="true">✳</div>
+<h2>A little mystery.<br>A real connection.</h2>
+<p>
+<%= user?.is_member || user?.is_admin ? 'You’re inside the club. Author names and posting dates are yours to see.' : 'Anyone can read. Create an account to write. Join the club to meet the people behind the words.' %>
+</p>
+</aside>
+</section>
+<section aria-labelledby="board-title">
+<div class="section-heading">
+<h2 id="board-title">The message board <span aria-hidden="true">↙</span>
+</h2>
+<span>NEWEST FIRST</span>
+</div>
+<% if(!messages.length) { %>
+<div class="empty">
+<span aria-hidden="true">✎</span>
+<h3>The first word could be yours.</h3>
+<p>No messages yet. Leave a thought and make this space feel like home.</p>
+<a href="<%= user ? '/messages/new' : '/signup' %>">Start the conversation →</a>
+</div>
+<% } %>
+<div class="messages">
+<% messages.forEach(message=> { %>
+<article class="message">
+<div class="message-top">
+<span class="tag">CLUBHOUSE NOTE</span>
+<% if(user?.is_admin) { %>
+<a class="delete-link" href="/messages/<%= message.id %>/delete">Delete</a>
+<% } %>
+</div>
+<h3>
+<%= message.title %>
+</h3>
+<p class="message-body">
+<%= message.body %>
+</p>
+<div class="message-meta">
+<% if(user?.is_member || user?.is_admin) { %>
+<span>
+<%= message.first_name %> <%= message.last_name %>
+</span>
+<time datetime="<%= message.created_at.toISOString() %>">
+<%= message.created_at.toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short',timeZone:'UTC'}) %> UTC</time>
+<% } else { %>
+<span>Behind the clubhouse door</span>
+<span aria-hidden="true">⌑</span>
+<% } %>
+</div>
+</article>
+<% }); %>
+</div>
+</section>
+<%- include('partials/footer') %>
