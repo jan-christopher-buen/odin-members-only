@@ -527,3 +527,11 @@ textarea {
     font-size: 9px;
   }
 }
+
+/* Keep compact navigation and moderation controls easy to tap. */
+nav > a,
+.delete-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
