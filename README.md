@@ -2,6 +2,8 @@
 
 A clubhouse message board built for [The Odin Project’s Members Only assignment](https://www.theodinproject.com/lessons/node-path-nodejs-members-only). Everyone can read the stories; membership reveals the people behind them.
 
+**Live:** [Members Only](https://odin-members-only-2si5.onrender.com)
+
 Express 5, EJS, responsive plain CSS, PostgreSQL (`pg`), Passport Local, `express-session`, `connect-pg-simple`, asynchronous `bcryptjs`, and `express-validator`. Session-based CSRF protection uses `csrf-sync`; `express-rate-limit` limits authentication and passcode attempts. Helmet supplies security headers.
 
 ## Run locally
@@ -78,7 +80,7 @@ Tests use Node’s runner, Supertest, and real PostgreSQL. They refuse hosted UR
 
 Authentication rate limits are per IP per process (signup 10, login 20, shared passcodes 10 attempts per 15 minutes). They reset on restart and are intended for a single instance; multiple instances require a shared limiter store. There is no password recovery, editing, or account management. The board shows all messages without pagination, suitable for a small curriculum project.
 
-Proxy trust defaults to off. Before enabling it, verify the actual proxy topology and header replacement behavior using the [official Express proxy guidance](https://expressjs.com/en/guide/behind-proxies/). Do not blindly enable all forwarded headers. HTTPS is required for production sessions. There is no verified live deployment yet.
+Proxy trust defaults to off. Before enabling it, verify the actual proxy topology and header replacement behavior using the [official Express proxy guidance](https://expressjs.com/en/guide/behind-proxies/). Do not blindly enable all forwarded headers. HTTPS is required for production sessions.
 
 ## Project structure
 
@@ -97,6 +99,8 @@ tests/             Isolated PostgreSQL integration suite
 ```
 
 ## Deploy to Render with Neon
+
+The live service was created directly through Render and uses its Dashboard environment settings as the source of truth. The tracked `render.yaml` is a template for creating another independent deployment; the existing service is not Blueprint-managed. It uses the same Free plan, Singapore region, build/start commands, and proxy settings. Auto-deploy is off.
 
 Use a new **Free** Render Web Service and a dedicated **Free** Neon project for this app. Keep other projects’ resources separate. Both providers offer Singapore regions. Never run the integration suite against the hosted database.
 
