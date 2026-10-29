@@ -27,7 +27,7 @@
   "homepage": "https://github.com/jan-christopher-buen/odin-members-only#readme",
   "private": true,
   "engines": {
-    "node": ">=24"
+    "node": ">=24 <25"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -6,7 +6,7 @@ Express 5, EJS, responsive plain CSS, PostgreSQL (`pg`), Passport Local, `expres
 
 ## Run locally
 
-Requires Node.js 24+, npm, and PostgreSQL. On Ubuntu/WSL, the example uses local peer authentication for role `jc` through `/var/run/postgresql`. Use your own PostgreSQL role on other systems.
+Requires Node.js 24.x, npm, and PostgreSQL. On Ubuntu/WSL, the example uses local peer authentication for role `jc` through `/var/run/postgresql`. Use your own PostgreSQL role on other systems.
 
 ```sh
 npm ci
@@ -30,7 +30,7 @@ Create databases only if they do not exist. Edit the ignored `.env` privately:
 | `MEMBERSHIP_PASSCODE` | Private membership invitation                                                 |
 | `ADMIN_PASSCODE`      | Separate private administrator invitation                                     |
 | `NODE_ENV`            | Set to `production` behind HTTPS; enables Secure cookies                      |
-| `TRUST_PROXY`         | Optional comma-separated trusted proxy IPs/subnets; unset locally             |
+| `TRUST_PROXY`         | Trusted proxy hop count or comma-separated IPs/subnets; unset locally         |
 
 Do not commit `.env`. Missing passcodes disable their respective grants. Production uses provider-injected variables without requiring an environment file. Follow your database provider’s TLS configuration; do not disable certificate verification.
 
@@ -78,7 +78,7 @@ Tests use Node’s runner, Supertest, and real PostgreSQL. They refuse hosted UR
 
 Authentication rate limits are per IP per process (signup 10, login 20, shared passcodes 10 attempts per 15 minutes). They reset on restart and are intended for a single instance; multiple instances require a shared limiter store. There is no password recovery, editing, or account management. The board shows all messages without pagination, suitable for a small curriculum project.
 
-Proxy trust defaults to off. Before enabling it, verify the actual proxy topology and header replacement behavior using the [official Express proxy guidance](https://expressjs.com/en/guide/behind-proxies/). Do not blindly enable all forwarded headers. HTTPS is required for production sessions. There is no hosted deployment yet.
+Proxy trust defaults to off. Before enabling it, verify the actual proxy topology and header replacement behavior using the [official Express proxy guidance](https://expressjs.com/en/guide/behind-proxies/). Do not blindly enable all forwarded headers. HTTPS is required for production sessions. There is no verified live deployment yet.
 
 ## Project structure
 
@@ -95,3 +95,16 @@ public/            CSS and favicon
 scripts/           Database setup, optional seed, syntax checks
 tests/             Isolated PostgreSQL integration suite
 ```
+
+## Deploy to Render with Neon
+
+Use a new **Free** Render Web Service and a dedicated **Free** Neon project for this app. Keep other projects’ resources separate. Both providers offer Singapore regions. Never run the integration suite against the hosted database.
+
+1. Create the dedicated Neon project with database `odin_members_only`. Initialize `src/db/schema.sql` through its SQL editor before creating the Render service, or run `npm run db:setup` separately with its private direct connection URL. Do not put schema setup in the build/start command.
+2. Push this repository normally to GitHub. In Render, create a new Blueprint from this repository’s `main` branch and `render.yaml`. Confirm the service’s plan is **Free**.
+3. Enter the dedicated Neon **pooled** connection URL privately as `DATABASE_URL`, retaining its TLS parameters. Set separate membership and admin passcodes in Render. The Blueprint generates a session secret. None of these values belong in Git.
+4. The Blueprint installs with `npm ci --omit=dev` and runs `npm start`. Node is limited to major 24. Render provides `PORT`; leave the local PG/socket settings out of Render. `NODE_ENV=production` enables Secure cookies.
+5. `TRUST_PROXY=1` follows [Render’s documented Express proxy configuration](https://render.com/articles/how-render-handles-ddos-attacks). Verify secure cookies, form submission, and client-IP rate limiting on the deployed service before sharing it. Recheck the hop count if adding a custom CDN or changing the network path.
+6. Verify signup, login, posting, membership, admin deletion, logout, privacy, and persistence through a service restart. Record the live URL only after it works. Automatic deployment is initially off; use Render’s manual deployment action for subsequent commits.
+
+[Render Free](https://render.com/docs/free) services sleep after 15 minutes without inbound traffic and have shared monthly usage limits. [Neon Free](https://neon.com/pricing) also has usage limits and cold starts. Keep the service on Free and do not add paid resources or upgrade either plan.

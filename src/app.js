@@ -13,11 +13,16 @@ export function createApp({ limits } = {}) {
   const passport = configurePassport();
   const PgStore = connectPgSimple(session);
   app.disable("x-powered-by");
-  if (process.env.TRUST_PROXY)
+  if (process.env.TRUST_PROXY) {
+    const trustedProxy = process.env.TRUST_PROXY.trim();
+    // A hop count must match the host's documented proxy topology.
     app.set(
       "trust proxy",
-      process.env.TRUST_PROXY.split(",").map((s) => s.trim()),
+      /^[1-9]\d*$/.test(trustedProxy)
+        ? Number(trustedProxy)
+        : trustedProxy.split(",").map((subnet) => subnet.trim()),
     );
+  }
   app.set("view engine", "ejs");
   app.set("views", new URL("../views/", import.meta.url).pathname);
   app.use((_req, res, next) => {

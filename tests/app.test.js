@@ -349,13 +349,31 @@ test("rate limits apply independently to signup, login and shared passcode attem
   );
 });
 
+test("one trusted proxy hop ignores forged client prefixes for rate limits", async () => {
+  process.env.TRUST_PROXY = "1";
+  const proxied = app({ limits: { signup: 1 } });
+  delete process.env.TRUST_PROXY;
+  const agent = request.agent(proxied);
+  const submit = async (forwarded) => {
+    const page = await agent.get("/signup");
+    return agent
+      .post("/signup")
+      .set("X-Forwarded-For", forwarded)
+      .type("form")
+      .send({ _csrf: token(page) });
+  };
+  assert.equal((await submit("203.0.113.7, 198.51.100.9")).status, 400);
+  assert.equal((await submit("203.0.113.8, 198.51.100.9")).status, 429);
+  assert.equal((await submit("198.51.100.10")).status, 400);
+});
+
 test("production secure cookie policy requires HTTPS; setup and seed preserve user data", async () => {
   process.env.NODE_ENV = "production";
   const production = app();
   const response = await request(production).get("/signup");
   assert.equal(response.status, 200);
   assert.equal(response.headers["set-cookie"], undefined);
-  process.env.TRUST_PROXY = "loopback";
+  process.env.TRUST_PROXY = "1";
   const proxyApp = app();
   const https = await request(proxyApp)
     .get("/signup")

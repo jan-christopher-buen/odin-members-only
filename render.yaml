@@ -1,0 +1,24 @@
+# Create a NEW service from this repo. Initialize the dedicated Neon schema first.
+services:
+  - type: web
+    name: odin-members-only
+    runtime: node
+    region: singapore
+    plan: free
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: MEMBERSHIP_PASSCODE
+        sync: false
+      - key: ADMIN_PASSCODE
+        sync: false
